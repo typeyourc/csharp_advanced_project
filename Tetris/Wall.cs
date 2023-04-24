@@ -13,6 +13,12 @@ namespace Tetris
             pos = new Position(x, y);
         }
 
+        public override void Delete()
+        {
+            Console.SetCursorPosition(pos.x, pos.y);
+            Console.WriteLine("  ");
+        }
+
         public override void Draw()
         {
             Console.SetCursorPosition(pos.x, pos.y);

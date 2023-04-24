@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Tetris
 {
-    class UnChangingMap : IDraw
+    class UnChangingMap : IDraw , IDelete
     {
         private Wall[] unChangeWalls;
 
@@ -29,6 +29,12 @@ namespace Tetris
                 unChangeWalls[index] = new Wall(i, Game.h - 6 - 1);
                 ++index;
             }
+        }
+
+        //待补充
+        public void Delete()
+        {
+            throw new NotImplementedException();
         }
 
         public void Draw()

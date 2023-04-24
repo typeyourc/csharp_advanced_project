@@ -14,6 +14,14 @@ namespace Tetris
             //Console.SetCursorPosition(0, 0);
             //Console.Write("游戏场景");
             new UnChangingMap().Draw();
+            Shape shape = new Shape();
+            //启动左右移动线程
+            Thread thread = new Thread(shape.MoveLeftOrRight);
+            thread.Start();
+            thread.IsBackground = true;
+            //启动下落线程
+            shape.MoveDown();
+           
         }
     }
     //internal class GameScene
