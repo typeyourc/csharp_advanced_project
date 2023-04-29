@@ -197,14 +197,37 @@ namespace Tetris
                 lock (objLock)
                 {
                     Draw();
-                    //过700ms擦除，绘制新图形
-                    Thread.Sleep(700);
-                    Delete();
+                    //if (Console.KeyAvailable)
+                    //{
+                    //    switch (Console.ReadKey(true).Key)
+                    //    {
+                    //        case ConsoleKey.S:
+                    //            //过200ms擦除
+                    //            Thread.Sleep(300);
+                    //            Delete();
+                    //            break;
+                    //    }
+                    //}
+                    //else
+                    //{
+                        //过700ms擦除
+                        Thread.Sleep(700);
+                        Delete();
+                    //}
+ 
                     for (int i = 0; i < cubes.Length; i++)
                         cubes[i].pos.y += 1;
                 }
                 Thread.Sleep(2000);
             }
+        }
+        public void FastMoveDown()
+        {
+            Draw();
+            Thread.Sleep(100);
+            Delete();
+            for (int i = 0; i < cubes.Length; i++)
+                cubes[i].pos.y += 1;
         }
         public void MoveLeftOrRight()
         {
@@ -221,15 +244,21 @@ namespace Tetris
                     //{
                         switch (Console.ReadKey(true).Key)
                         {
+                            case ConsoleKey.S:
+                                Delete();
+                                FastMoveDown();
+                                break;
                             case ConsoleKey.A:
                                 Delete();
                                 for (int i = 0; i < cubes.Length; i++)
                                     cubes[i].pos.x -= 2;
+                                Draw();
                                 break;
                             case ConsoleKey.D:
                                 Delete();
                                 for (int i = 0; i < cubes.Length; i++)
                                     cubes[i].pos.x += 2;
+                                Draw();
                                 break;
                             case ConsoleKey.LeftArrow:
                                 Delete();
@@ -250,6 +279,7 @@ namespace Tetris
                                     cstatus = E_ShapStatus.Status3;
                                 }
                                 ChangeShapePositon(cstatus);
+                                Draw();
                                 break;
                             case ConsoleKey.RightArrow:
                                 Delete();
@@ -270,9 +300,10 @@ namespace Tetris
                                     cstatus = E_ShapStatus.Status1;
                                 }
                                 ChangeShapePositon(cstatus);
+                                Draw();
                                 break;
                         }
-                        Draw();
+                        //Draw();
                     //}
                     //Thread.Sleep(500);
                 }

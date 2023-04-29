@@ -25,6 +25,7 @@
                 b = b + 2;
                 Console.WriteLine("我是A方法，b=" + b);
             }
+            //Thread.Sleep(5000);
             Console.WriteLine("A非lock区域2测试");
         }
         private static void B()
@@ -38,6 +39,7 @@
                 a++;
                 Console.WriteLine("我是B方法，a=" + a);
             }
+            //Thread.Sleep(5000);
             Console.WriteLine("B非lock区域2测试");
         }
 
