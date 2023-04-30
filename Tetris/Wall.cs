@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Tetris
 {
+    /// <summary>
+    /// 地图的单个元素类(一块砖)
+    /// </summary>
     class Wall : GameObject
     {
         public Wall(int x, int y)

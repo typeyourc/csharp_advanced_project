@@ -31,19 +31,24 @@ namespace Tetris
             }
         }
 
-        //待补充
+        //固定地图消除(待完善，可不写)
         public void Delete()
         {
             throw new NotImplementedException();
         }
 
+
+        /// <summary>
+        /// 绘制固定地图
+        /// </summary>
         public void Draw()
         {
             for (int i = 0; i < unChangeWalls.Length; i++)
             {
                 unChangeWalls[i].Draw();
-             }
+            }
         }
+
     }
     //internal class UnChangingWalls
     //{

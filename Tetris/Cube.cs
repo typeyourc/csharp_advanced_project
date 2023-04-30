@@ -18,6 +18,9 @@ namespace Tetris
         Type5,
         Type6,
     }
+    /// <summary>
+    /// 形状的单个元素类
+    /// </summary>
     class Cube : GameObject
     {
         public E_CubeType cubeType;

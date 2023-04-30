@@ -8,16 +8,23 @@ namespace Tetris
 {
     class GameScene : ISceneUpdate
     {
-        Shape shape = new Shape();
+        Shape shape = Shape.instanceOfShape;
         UnChangingMap unChangingMap = new UnChangingMap();
+        ChangingWalls changingWalls = ChangingWalls.InstanceOfChangingWalls;
 
         public GameScene()
         {
             unChangingMap.Draw();
+            shape.touchBottomDoSomethig += changingWalls.AddShape;
+            shape.touchBottomDoSomethig += changingWalls.DeleteShape;
         }
 
         public void Update()
         {
+            //shape.touchBottomDoSomethig += changingWalls.AddShape;
+            //shape.touchBottomDoSomethig += changingWalls.DeleteShape;
+            //shape.touchBottomDoSomethig += shape.ShapeInit;
+            //shape.touchBottomDoSomethig += shape.MoveDown;
             //以下两行为测试专用
             //Console.SetCursorPosition(0, 0);
             //Console.Write("游戏场景");
@@ -28,8 +35,6 @@ namespace Tetris
             //thread = null;
             //new UnChangingMap().Draw();
             //Shape shape = new Shape();
-
-
 
             Thread thread1 = new Thread(shape.MoveDown);
             thread1.Start();
