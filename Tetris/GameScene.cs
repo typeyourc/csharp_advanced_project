@@ -15,8 +15,8 @@ namespace Tetris
         public GameScene()
         {
             unChangingMap.Draw();
-            shape.touchBottomDoSomethig += changingWalls.AddShape;
-            shape.touchBottomDoSomethig += changingWalls.DeleteShape;
+            shape.afterTouchDoSomethig += changingWalls.AddShape;
+            shape.afterTouchDoSomethig += changingWalls.isFullLine;
         }
 
         public void Update()
