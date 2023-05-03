@@ -21,7 +21,7 @@ namespace Tetris
         public Cube[] cubes;
         public E_ShapStatus status;
         public E_CubeType shapType;
-        private static readonly object objLock = new object();
+        private static object objLock = new object();
         public Action afterTouchDoSomethig = null;
         public static Shape instanceOfShape = new Shape();
 
@@ -204,6 +204,10 @@ namespace Tetris
             //cubes = null;
             //cubes = new Cube[4];
             //暂且先按照1个形状来测试一下，如果OK的话，补上所有形状数据
+            //objLock = new object();
+            //afterTouchDoSomethig = null;
+            //instanceOfShape = new Shape();
+
             shapType = (E_CubeType)new Random().Next(0, 1);
             status = (E_ShapStatus)new Random().Next(0, 4);
             #region 形状1
@@ -296,7 +300,7 @@ namespace Tetris
         /// </summary>
         public void MoveDown()
         {
-            while (true)
+            while (!GameScene.isGameOver)
             {
                 lock (objLock)
                 {
@@ -317,7 +321,9 @@ namespace Tetris
                         //else
                         //{
                         //过700ms擦除
-                        Thread.Sleep(700);
+                        //Thread.Sleep(700);
+                        //测试时候改成200ms
+                        Thread.Sleep(100);
                         Delete();
                         //}
 
@@ -326,9 +332,22 @@ namespace Tetris
                     }
                     else
                     {
-                        if (afterTouchDoSomethig != null)
+                        if (afterTouchDoSomethig != null && !(ChangingWalls.InstanceOfChangingWalls.OverHeight()))
                         {
                             afterTouchDoSomethig();
+                        }
+                        else
+                        {
+                            //Console.Clear();
+                            //这里加上线程结束标记
+                            GameScene.isGameOver = true;
+                            
+                            //改变到游戏结束画面
+                            //Game.ChangeScene(E_SceneType.End);
+
+                            //break;
+                            //结束函数,直接用return，不能退出MoveDown()函数
+                            //return;
                         }
                     }
                 }
@@ -367,7 +386,7 @@ namespace Tetris
             bool boolFlagOfTouchLeftOrRight = false;
             bool boolFlagOfTouchChangingWalls = false;
             //检测输入
-            while (true)
+            while (!GameScene.isGameOver)
             {
                 boolFlagOfTouchLeftOrRight = false;
                 boolFlagOfTouchChangingWalls = false;
@@ -754,6 +773,16 @@ namespace Tetris
             {
                 return false;
             }
+        }
+        
+        /// <summary>
+        /// 重置形状
+        /// </summary>
+        public void ResetShape()
+        {
+            //objLock = new object();
+            afterTouchDoSomethig = null;
+            //instanceOfShape = new Shape();
         }
     }
 }

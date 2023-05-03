@@ -33,6 +33,10 @@ namespace Tetris
         //当前选中的场景
         public static ISceneUpdate nowScene;
 
+        //public Shape shape;
+        //public UnChangingWalls unChangingWalls;
+        //public ChangingWalls changingWalls;
+
         public Game()
         {
             Console.CursorVisible = false;

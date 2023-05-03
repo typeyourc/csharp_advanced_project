@@ -11,9 +11,18 @@ namespace Tetris
         Shape shape = Shape.instanceOfShape;
         UnChangingMap unChangingMap = new UnChangingMap();
         ChangingWalls changingWalls = ChangingWalls.InstanceOfChangingWalls;
+        static public bool isGameOver = false;
 
         public GameScene()
         {
+            shape = Shape.instanceOfShape;
+            unChangingMap = new UnChangingMap();
+            changingWalls = ChangingWalls.InstanceOfChangingWalls;
+            isGameOver = false;
+
+            changingWalls.ReseChangingtWalls();
+            shape.ResetShape();
+
             unChangingMap.Draw();
             shape.afterTouchDoSomethig += changingWalls.AddShape;
             shape.afterTouchDoSomethig += changingWalls.isFullLine;
@@ -45,10 +54,22 @@ namespace Tetris
             thread2.Start();
             //thread2.IsBackground = true;
 
+            //测试发现这两句不能加
+            //thread1.Join();
+            //thread2.Join();
+
+            if (isGameOver == true)
+            {
+                thread1 = null;
+                thread2 = null;
+                //isGameOver = false;
+                //changingWalls.walls = null;
+                Game.nowScene = null;
+                Game.ChangeScene(E_SceneType.End);
+            }
 
             //启动下落线程
             //shape.MoveDown();
-
         }
     }
     //internal class GameScene

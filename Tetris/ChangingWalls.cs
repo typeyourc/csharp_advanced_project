@@ -17,12 +17,15 @@ namespace Tetris
         public static int changingWallsLength;
         //临时长度
         public int tempLength;
+        //变化城墙高度
+        public static int lineNum;
 
         //构造函数私有化
         private ChangingWalls() 
         {
             changingWallsLength = 0;
             walls = new Wall[changingWallsLength];
+            lineNum = 0;
 
             //把每一行的坐标存到字典里
             //dictionaryWalls.Add(0, walls);
@@ -87,8 +90,15 @@ namespace Tetris
                 //walls[i].pos.x = Shape.InstanceOfShape.cubes[i].pos.x;
                 //walls[i].pos.y = Shape.InstanceOfShape.cubes[i].pos.y;
             }
-            Draw();
-            Shape.InstanceOfShape.ShapeInit();
+            //CountLineNum();
+            for (int i = 0; i < walls.Length; i++)
+            {
+                //if (walls[i].pos.y >= 0)
+                //{
+                    Draw();
+                    Shape.InstanceOfShape.ShapeInit();
+                //}
+            }
         }
 
         /// <summary>
@@ -97,20 +107,21 @@ namespace Tetris
         public void isFullLine() 
         {
             //计算变化城墙有多少行
-            int lineNum = 0;
-            for (int i = 1; i <= 28; i++)
-            {
-                for (int j = 0; j < walls.Length; j++)
-                {
-                    if (walls[j].pos.y == i)
-                    {
-                        lineNum++;
-                        break;
-                    }
-                }
-            }
+            //for (int i = 1; i <= 28; i++)
+            //{
+            //    for (int j = 0; j < walls.Length; j++)
+            //    {
+            //        if (walls[j].pos.y == i)
+            //        {
+            //            lineNum++;
+            //            break;
+            //        }
+            //    }
+            //}
+
             //验证每行是否有满行（验证是否 满行的方法比我想的对比字典的那种方法好）
-            for (int i = 1; i <= Game.h - 6 - 2; i++)
+            //注意i=1，是从上面的第一行开始验证是否有
+            for (int i = 0; i <= Game.h - 6 - 2; i++)
             {
                 int count = 0;
                 for (int j = 0; j < walls.Length; j++)
@@ -128,6 +139,7 @@ namespace Tetris
                     //MoveDown(i);
                     Delete();
                     walls = DeleteShape(i);
+                    //lineNum--;
                     //Delete();
                     Draw();
                 }
@@ -188,16 +200,65 @@ namespace Tetris
         {
             for (int i = 0; i < walls.Length; i++)
             {
-                walls[i].Draw();
+                if (walls[i].pos.y >= 0)
+                {
+                    walls[i].Draw();
+                }
             }
         }
 
+        /// <summary>
+        /// 清除变化地图
+        /// </summary>
         public void Delete()
         {
             for (int i = 0; i < walls.Length; i++)
             {
                 walls[i].Delete();
             }
+        }
+
+        /// <summary>
+        /// 计算变化城墙有多少行
+        /// </summary>
+        public int CountLineNum()
+        {
+            int tempLineNum = 0;
+            //计算变化城墙有多少行
+            for (int i = 0; i <= 28; i++)
+            {
+                for (int j = 0; j < walls.Length; j++)
+                {
+                    //只要存在一次行号，即加一个高度，再break验证下个行号即可
+                    if (walls[j].pos.y == i)
+                    {
+                        tempLineNum++;
+                        break;
+                    }
+                }
+            }
+            return tempLineNum;
+        }
+
+        /// <summary>
+        /// 判断是否超出高度
+        /// </summary>
+        /// <returns></returns>
+        public bool OverHeight()
+        {
+            lineNum = CountLineNum();
+            return lineNum >= 29;
+        }
+
+        /// <summary>
+        /// 重置变化地图
+        /// </summary>
+        public void ReseChangingtWalls()
+        {
+            walls = new Wall[0];
+            tempLength = 0;
+            changingWallsLength = 0;
+            lineNum = 0;
         }
     }
 }

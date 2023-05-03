@@ -26,6 +26,12 @@ namespace Tetris
                 Environment.Exit(0);
             }
         }
+
+        //不需要重写Update()，继承父亲基类的即可
+        //public void Update()
+        //{
+
+        //}
     }
     //internal class BeginScene
     //{
