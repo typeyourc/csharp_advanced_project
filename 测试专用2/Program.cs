@@ -1,35 +1,9 @@
-﻿namespace 测试专用2
+﻿using System;
+
+public void Shape()
 {
-    internal class Program
-    {
-        public void Update()
-        {
-            Thread thread1 = new Thread(shape.MoveDown);
-            thread1.Start();
-  
-            Thread thread2 = new Thread(shape.MoveLeftOrRight);
-            thread2.Start();
- 
+    cubes = new Cube[4];
 
-            if (isGameOver == true)
-            {
-                //thread1.Join();
-                //thread2.Join();
-                thread1 = null;
-                thread2 = null;
-                //isGameOver = false;
-                //changingWalls.walls = null;
-                Thread.Sleep(1000);
-                Game.nowScene = null;
-                Game.ChangeScene(E_SceneType.End);
-
-                我举个例子：
-                while ()
-                {
-                    Update();
-                    int++;
-                }
-            }
-        }
-    }
+    cubes[0].pos.x = (Game.w) / 2 - 1;
+    cubes[0].pos.y = 0;
 }

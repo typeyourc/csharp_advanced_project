@@ -35,6 +35,7 @@ namespace Tetris
         }
         public override void Draw()
         {
+            cubeType = Shape.shapType;
             switch (cubeType)
             {
                 case E_CubeType.Type1:
@@ -56,6 +57,32 @@ namespace Tetris
                     Console.ForegroundColor = ConsoleColor.Blue;
                     break;
             }
+
+            //if (cubeType == E_CubeType.Type1)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Cyan;
+            //}
+            //else if (cubeType == E_CubeType.Type2)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Magenta;
+            //}
+            //else if (cubeType == E_CubeType.Type3)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Green;
+            //}
+            //else if (cubeType == E_CubeType.Type4)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Gray;
+            //}
+            //else if (cubeType == E_CubeType.Type5)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Gray;
+            //}
+            //else if (cubeType == E_CubeType.Type6)
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Blue;
+            //}
+
             Console.SetCursorPosition(pos.x, pos.y);
             Console.WriteLine("■");
         }
