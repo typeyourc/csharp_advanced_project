@@ -10,7 +10,7 @@ namespace Tetris
     {
         public EndScene()
         {
-            strTitle = "结束游戏";
+            strTitle = "游戏结束";
             strOne = "回到开始界面";
         }
 

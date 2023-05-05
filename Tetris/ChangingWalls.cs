@@ -74,7 +74,9 @@ namespace Tetris
         /// </summary>
         public void AddShape()
         {
+            //先把之前的数组长度存起来，因为下面要用到
             tempLength = changingWallsLength;
+            //更新数组长度
             changingWallsLength += Shape.InstanceOfShape.cubes.Length;
             //这里需要加一句walls数组的更新，因为下面要用到walls，虽然changingWallsLength增加了，
             //但是并没有通过构造函数更新数组长度，因为构造函数只在实例化的时候执行一次。所以，我们
@@ -91,6 +93,7 @@ namespace Tetris
                 //walls[i].pos.y = Shape.InstanceOfShape.cubes[i].pos.y;
             }
             //CountLineNum();
+            //绘制walls，之后初始化新的形状shape
             for (int i = 0; i < walls.Length; i++)
             {
                 //if (walls[i].pos.y >= 0)
@@ -99,10 +102,14 @@ namespace Tetris
                     Shape.InstanceOfShape.ShapeInit();
                 //}
             }
+            if (ChangingWalls.InstanceOfChangingWalls.OverHeight())
+            {
+                GameScene.isGameOver = true;
+            }
         }
 
         /// <summary>
-        /// 判断是否满行
+        /// 判断是否满行，消除满行，并下移
         /// </summary>
         public void isFullLine() 
         {
@@ -161,6 +168,7 @@ namespace Tetris
             //把上面的方块下移(重置数组，元素减少一行的数量，新元素主要
             //包含两类，第一类是小于linenum的所有元素，第二类是大于linenum的所有元素y坐标-1，重新绘制ChangingWalls即可)
             //1.重置数组
+            changingWallsLength = walls.Length - (Game.w / 2 - 2);
             Wall[] tempWalls = new Wall[walls.Length - (Game.w / 2 - 2)];
             //2.存入元素
             int tempIndexOfTempWalls = 0;
@@ -221,23 +229,51 @@ namespace Tetris
         /// <summary>
         /// 计算变化城墙有多少行
         /// </summary>
+        //public int CountLineNum()
+        //{
+        //    int tempLineNum = 0;
+        //    //计算变化城墙有多少行
+        //    for (int i = 28; i >= 0; i--)
+        //    {
+        //        for (int j = 0; j < walls.Length; j++)
+        //        {
+        //            //只要存在一次行号，即加一个高度，再break验证下个行号即可
+        //            if (walls[j].pos.y == i)
+        //            {
+        //                tempLineNum++;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    return tempLineNum;
+        //}
         public int CountLineNum()
         {
             int tempLineNum = 0;
-            //计算变化城墙有多少行
-            for (int i = 0; i <= 28; i++)
+            int min = walls[0].pos.y;
+
+            for (int i = 0; i < walls.Length; i++)
             {
-                for (int j = 0; j < walls.Length; j++)
+                if (min > walls[i].pos.y && walls[i].pos.y >= 0)
                 {
-                    //只要存在一次行号，即加一个高度，再break验证下个行号即可
-                    if (walls[j].pos.y == i)
-                    {
-                        tempLineNum++;
-                        break;
-                    }
+                    min = walls[i].pos.y;
                 }
             }
+            tempLineNum = 29 - min;
+
             return tempLineNum;
+        }
+        public bool CountLineNum1()
+        {
+            for (int i = 0; i < walls.Length; i++)
+            {
+                if (walls[i].pos.y <= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -246,8 +282,10 @@ namespace Tetris
         /// <returns></returns>
         public bool OverHeight()
         {
-            lineNum = CountLineNum();
-            return lineNum >= 29;
+            //lineNum = CountLineNum();
+            //return lineNum >= 29;
+
+            return CountLineNum1();
         }
 
         /// <summary>

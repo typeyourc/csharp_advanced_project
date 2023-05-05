@@ -57,6 +57,10 @@ namespace Tetris
                 if (nowScene != null)
                 {
                     nowScene.Update();
+
+                    //测试用
+                    //int i = 1;
+                    //i++;  
                 }
             }
         }

@@ -24,6 +24,12 @@ namespace Tetris
         private static object objLock = new object();
         public Action afterTouchDoSomethig = null;
         public static Shape instanceOfShape = new Shape();
+        public Random random = new Random();
+
+        bool boolFlagOfTouchLeftOrRight = false;
+        bool boolFlagOfTouchChangingWalls = false;
+        bool boolFlagofTouchChangingWalls = false;
+        E_ShapStatus cstatus;
 
         /// <summary>
         /// shape的构造函数
@@ -36,8 +42,8 @@ namespace Tetris
             //cubes[2] = new Cube(0, 0);
             //cubes[3] = new Cube(0, 0);
             //暂且先按照1个形状来测试一下，如果OK的话，补上所有形状数据
-            shapType = (E_CubeType)new Random().Next(0, 1);
-            status = (E_ShapStatus)new Random().Next(0, 1);
+            shapType = (E_CubeType)random.Next(0, 1);
+            status = (E_ShapStatus)random.Next(0, 1);
             #region 形状1
             if (shapType == E_CubeType.Type1)
             {
@@ -186,13 +192,9 @@ namespace Tetris
             {
                 return instanceOfShape;
             }
-            set
-            {
-                instanceOfShape = value;
-            }
             //set
             //{
-            //    Shape;
+            //    instanceOfShape = value;
             //}
         }
 
@@ -208,8 +210,8 @@ namespace Tetris
             //afterTouchDoSomethig = null;
             //instanceOfShape = new Shape();
 
-            shapType = (E_CubeType)new Random().Next(0, 1);
-            status = (E_ShapStatus)new Random().Next(0, 4);
+            shapType = (E_CubeType)random.Next(0, 1);
+            status = (E_ShapStatus)random.Next(0, 4);
             #region 形状1
             if (shapType == E_CubeType.Type1)
             {
@@ -304,6 +306,7 @@ namespace Tetris
             {
                 lock (objLock)
                 {
+                    // lock 语句块中的代码
                     if (!TouchBottom(this) && !TouchChangingWalls(this))
                     {
                         Draw();
@@ -323,7 +326,7 @@ namespace Tetris
                         //过700ms擦除
                         //Thread.Sleep(700);
                         //测试时候改成200ms
-                        Thread.Sleep(100);
+                        Thread.Sleep(350);
                         Delete();
                         //}
 
@@ -332,26 +335,27 @@ namespace Tetris
                     }
                     else
                     {
-                        if (afterTouchDoSomethig != null && !(ChangingWalls.InstanceOfChangingWalls.OverHeight()))
+                        if (afterTouchDoSomethig != null)
                         {
                             afterTouchDoSomethig();
+                            //GameScene.isGameOver = ChangingWalls.InstanceOfChangingWalls.OverHeight();
                         }
-                        else
-                        {
-                            //Console.Clear();
-                            //这里加上线程结束标记
-                            GameScene.isGameOver = true;
-                            
-                            //改变到游戏结束画面
-                            //Game.ChangeScene(E_SceneType.End);
-
-                            //break;
-                            //结束函数,直接用return，不能退出MoveDown()函数
-                            //return;
-                        }
+                        //if (afterTouchDoSomethig != null && !(ChangingWalls.InstanceOfChangingWalls.OverHeight()))
+                        //{
+                        //    afterTouchDoSomethig();
+                        //}
+                        //else
+                        //{
+                        //    GameScene.isGameOver = true;
+                        //}
                     }
                 }
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
+                //用于暂停线程500ms，以便thread2线程启动，这样就可以使用线程2左右移动
+                if (!GameScene.isGameOver)
+                {
+                    Thread.Sleep(100);
+                }
             }
         }
 
@@ -383,126 +387,136 @@ namespace Tetris
         /// </summary>
         public void MoveLeftOrRight()
         {
-            bool boolFlagOfTouchLeftOrRight = false;
-            bool boolFlagOfTouchChangingWalls = false;
+            //bool boolFlagOfTouchLeftOrRight = false;
+            //bool boolFlagOfTouchChangingWalls = false;
+            //bool boolFlagofTouchChangingWalls = false;
             //检测输入
             while (!GameScene.isGameOver)
             {
-                boolFlagOfTouchLeftOrRight = false;
-                boolFlagOfTouchChangingWalls = false;
+                //boolFlagOfTouchLeftOrRight = false;
+                //boolFlagOfTouchChangingWalls = false;
+                //boolFlagofTouchChangingWalls = false;
                 lock (objLock)
                 {
-                    E_ShapStatus cstatus = status;
+                    boolFlagOfTouchLeftOrRight = false;
+                    boolFlagOfTouchChangingWalls = false;
+                    boolFlagofTouchChangingWalls = false;
 
-                if (Console.KeyAvailable)
-                {
-                    //lock (objLock)
-                    //{
-                        switch (Console.ReadKey(true).Key)
-                        {
-                            case ConsoleKey.S:
-                                Delete();
-                                FastMoveDown();
-                                break;
-                            case ConsoleKey.A:
-                                //主要判断是否到达左边界以及是否碰到变化地图
-                                for (int i = 0; i < cubes.Length; i++)
-                                {
-                                    if (cubes[i].pos.x - 2 < 2)
+                    //E_ShapStatus cstatus = status;
+
+                    if (Console.KeyAvailable)
+                    {
+                        //lock (objLock)
+                        //{
+                            switch (Console.ReadKey(true).Key)
+                            {
+                                case ConsoleKey.S:
+                                    Delete();
+                                    FastMoveDown();
+                                    break;
+                                case ConsoleKey.A:
+                                    //主要判断是否到达左边界以及是否碰到变化地图
+                                    for (int i = 0; i < cubes.Length; i++)
                                     {
-                                        boolFlagOfTouchLeftOrRight = true;
-                                    }
-                                    for (int j = 0; j < ChangingWalls.instanceOfChangingWalls.walls.Length; j++)
-                                    {
-                                        if (cubes[i].pos.x - 2 == ChangingWalls.instanceOfChangingWalls.walls[j].pos.x
-                                            && cubes[i].pos.y == ChangingWalls.instanceOfChangingWalls.walls[j].pos.y)
+                                        if (cubes[i].pos.x - 2 < 2)
                                         {
-                                            boolFlagOfTouchChangingWalls = true;
+                                            boolFlagOfTouchLeftOrRight = true;
+                                        }
+                                        for (int j = 0; j < ChangingWalls.instanceOfChangingWalls.walls.Length; j++)
+                                        {
+                                            if (cubes[i].pos.x - 2 == ChangingWalls.instanceOfChangingWalls.walls[j].pos.x
+                                                && cubes[i].pos.y == ChangingWalls.instanceOfChangingWalls.walls[j].pos.y)
+                                            {
+                                                boolFlagOfTouchChangingWalls = true;
+                                            }
                                         }
                                     }
-                                }
-                                if (!boolFlagOfTouchLeftOrRight && !boolFlagOfTouchChangingWalls)
-                                {
-                                    Delete();
-                                    for (int i = 0; i < cubes.Length; i++)
-                                        cubes[i].pos.x -= 2;
-                                    Draw();
-                                }
-                                break;
-                            case ConsoleKey.D:
-                                //主要判断是否到达右边界
-                                for (int i = 0; i < cubes.Length; i++)
-                                {
-                                    if (cubes[i].pos.x + 2 > 46)
+                                    if (!boolFlagOfTouchLeftOrRight && !boolFlagOfTouchChangingWalls)
                                     {
-                                        boolFlagOfTouchLeftOrRight = true;
+                                        Delete();
+                                        for (int i = 0; i < cubes.Length; i++)
+                                            cubes[i].pos.x -= 2;
+                                        Draw();
                                     }
-                                    for (int j = 0; j < ChangingWalls.instanceOfChangingWalls.walls.Length; j++)
+                                    break;
+                                case ConsoleKey.D:
+                                    //主要判断是否到达右边界
+                                    for (int i = 0; i < cubes.Length; i++)
                                     {
-                                        if (cubes[i].pos.x + 2 == ChangingWalls.instanceOfChangingWalls.walls[j].pos.x
-                                            && cubes[i].pos.y == ChangingWalls.instanceOfChangingWalls.walls[j].pos.y)
+                                        if (cubes[i].pos.x + 2 > 46)
                                         {
-                                            boolFlagOfTouchChangingWalls = true;
+                                            boolFlagOfTouchLeftOrRight = true;
+                                        }
+                                        for (int j = 0; j < ChangingWalls.instanceOfChangingWalls.walls.Length; j++)
+                                        {
+                                            if (cubes[i].pos.x + 2 == ChangingWalls.instanceOfChangingWalls.walls[j].pos.x
+                                                && cubes[i].pos.y == ChangingWalls.instanceOfChangingWalls.walls[j].pos.y)
+                                            {
+                                                boolFlagOfTouchChangingWalls = true;
+                                            }
                                         }
                                     }
-                                }
-                                if (!boolFlagOfTouchLeftOrRight && !boolFlagOfTouchChangingWalls)
-                                {
+                                    if (!boolFlagOfTouchLeftOrRight && !boolFlagOfTouchChangingWalls)
+                                    {
+                                        Delete();
+                                        for (int i = 0; i < cubes.Length; i++)
+                                            cubes[i].pos.x += 2;
+                                        Draw();
+                                    }
+                                    break;
+                                case ConsoleKey.LeftArrow:
                                     Delete();
-                                    for (int i = 0; i < cubes.Length; i++)
-                                        cubes[i].pos.x += 2;
+                                    if (status == E_ShapStatus.Status1)
+                                    {
+                                        cstatus = E_ShapStatus.Status4;
+                                    }
+                                    else if (status == E_ShapStatus.Status2)
+                                    {
+                                        cstatus = E_ShapStatus.Status1;
+                                    }
+                                    else if (status == E_ShapStatus.Status3)
+                                    {
+                                        cstatus = E_ShapStatus.Status2;
+                                    }
+                                    else if (status == E_ShapStatus.Status4)
+                                    {
+                                        cstatus = E_ShapStatus.Status3;
+                                    }
+                                    ChangeShapePositon(cstatus);
                                     Draw();
-                                }
-                                break;
-                            case ConsoleKey.LeftArrow:
-                                Delete();
-                                if (status == E_ShapStatus.Status1)
-                                {
-                                    cstatus = E_ShapStatus.Status4;
-                                }
-                                else if (status == E_ShapStatus.Status2)
-                                {
-                                    cstatus = E_ShapStatus.Status1;
-                                }
-                                else if (status == E_ShapStatus.Status3)
-                                {
-                                    cstatus = E_ShapStatus.Status2;
-                                }
-                                else if (status == E_ShapStatus.Status4)
-                                {
-                                    cstatus = E_ShapStatus.Status3;
-                                }
-                                ChangeShapePositon(cstatus);
-                                Draw();
-                                break;
-                            case ConsoleKey.RightArrow:
-                                Delete();
-                                if (status == E_ShapStatus.Status1)
-                                {
-                                    cstatus = E_ShapStatus.Status2;
-                                }
-                                else if (status == E_ShapStatus.Status2)
-                                {
-                                    cstatus = E_ShapStatus.Status3;
-                                }
-                                else if (status == E_ShapStatus.Status3)
-                                {
-                                    cstatus = E_ShapStatus.Status4;
-                                }
-                                else if (status == E_ShapStatus.Status4)
-                                {
-                                    cstatus = E_ShapStatus.Status1;
-                                }
-                                ChangeShapePositon(cstatus);
-                                Draw();
-                                break;
-                        }
-                        //Draw();
-                    //}
-                    //Thread.Sleep(500);
+                                    break;
+                                case ConsoleKey.RightArrow:
+                                    Delete();
+                                    if (status == E_ShapStatus.Status1)
+                                    {
+                                        cstatus = E_ShapStatus.Status2;
+                                    }
+                                    else if (status == E_ShapStatus.Status2)
+                                    {
+                                        cstatus = E_ShapStatus.Status3;
+                                    }
+                                    else if (status == E_ShapStatus.Status3)
+                                    {
+                                        cstatus = E_ShapStatus.Status4;
+                                    }
+                                    else if (status == E_ShapStatus.Status4)
+                                    {
+                                        cstatus = E_ShapStatus.Status1;
+                                    }
+                                    ChangeShapePositon(cstatus);
+                                    Draw();
+                                    break;
+                            }
+                            //Draw();
+                        //}
+                        //Thread.Sleep(500);
+                    }
                 }
-            }
-                Thread.Sleep(500);
+                //线程2暂停500ms，以便线程1启动自动下滑
+                if (!GameScene.isGameOver)
+                {
+                    Thread.Sleep(200);
+                }
             }
         }
 
@@ -567,26 +581,35 @@ namespace Tetris
         /// <param name="cstatus"></param>
         public void ChangeShapePositon(E_ShapStatus cstatus)
         {
+            //Cube[] tempCubes = new Cube[4];
             //测试一下，去掉这个lock
             //lock (objLock)
             //{
-                #region 形状1
-                if (shapType == E_CubeType.Type1)
+            #region 形状1
+            if (shapType == E_CubeType.Type1)
                 {
                     #region 原先是状态1，转成状态4或者状态2
                     if (status == E_ShapStatus.Status1 && cstatus == E_ShapStatus.Status4)
                     {
-                        cubes[0].pos.x = cubes[0].pos.x;
-                        cubes[0].pos.y = cubes[0].pos.y - 2;
+                        //tempCubes[0] = new Cube(cubes[0].pos.x, cubes[0].pos.y - 2);
+                        //tempCubes[1] = new Cube(tempCubes[0].pos.x, tempCubes[0].pos.y - 2);
+                        //tempCubes[2] = new Cube(tempCubes[0].pos.x, tempCubes[0].pos.y - 2);
+                        //tempCubes[3] = new Cube(tempCubes[0].pos.x, tempCubes[0].pos.y - 2);
 
-                        cubes[1].pos.x = cubes[0].pos.x;
-                        cubes[1].pos.y = cubes[0].pos.y + 1;
-                        cubes[2].pos.x = cubes[0].pos.x;
-                        cubes[2].pos.y = cubes[0].pos.y + 2;
-                        cubes[3].pos.x = cubes[0].pos.x + 2;
-                        cubes[3].pos.y = cubes[0].pos.y + 1;
+                        //if (!touchChangingWalls2(tempCubes))
+                        //{
+                            cubes[0].pos.x = cubes[0].pos.x;
+                            cubes[0].pos.y = cubes[0].pos.y - 2;
 
-                        status = E_ShapStatus.Status4;
+                            cubes[1].pos.x = cubes[0].pos.x;
+                            cubes[1].pos.y = cubes[0].pos.y + 1;
+                            cubes[2].pos.x = cubes[0].pos.x;
+                            cubes[2].pos.y = cubes[0].pos.y + 2;
+                            cubes[3].pos.x = cubes[0].pos.x + 2;
+                            cubes[3].pos.y = cubes[0].pos.y + 1;
+
+                            status = E_ShapStatus.Status4;
+                         //}
                     }
                     else if (status == E_ShapStatus.Status1 && cstatus == E_ShapStatus.Status2)
                     {
@@ -703,21 +726,43 @@ namespace Tetris
         /// </summary>
         /// <param name="shape"></param>
         /// <returns></returns>
+        //public bool TouchBottom(Shape shape)
+        //{
+        //    Shape shapeTemp = new Shape();
+
+        //    for (int i = 0; i < shapeTemp.cubes.Length; i++)
+        //    {
+        //        shapeTemp.cubes[i].pos.x = shape.cubes[i].pos.x;
+        //        shapeTemp.cubes[i].pos.y = shape.cubes[i].pos.y;
+        //    }
+
+        //    Sort(shapeTemp);
+
+        //    for (int i = 0; i < shapeTemp.cubes.Length;i++)
+        //    {
+        //        if (shapeTemp.cubes[i].pos.y > Game.h - 9)
+        //        {
+        //            return true;
+        //        }
+        //    }
+
+        //    return false;
+        //}
         public bool TouchBottom(Shape shape)
         {
-            Shape shapeTemp = new Shape();
+            //Shape shapeTemp = new Shape();
 
-            for (int i = 0; i < shapeTemp.cubes.Length; i++)
+            //for (int i = 0; i < shapeTemp.cubes.Length; i++)
+            //{
+            //    shapeTemp.cubes[i].pos.x = shape.cubes[i].pos.x;
+            //    shapeTemp.cubes[i].pos.y = shape.cubes[i].pos.y;
+            //}
+
+            //Sort(shapeTemp);
+            //bool flagTouchBottom = false;
+            for (int i = 0; i < shape.cubes.Length; i++)
             {
-                shapeTemp.cubes[i].pos.x = shape.cubes[i].pos.x;
-                shapeTemp.cubes[i].pos.y = shape.cubes[i].pos.y;
-            }
-
-            Sort(shapeTemp);
-
-            for (int i = 0; i < shapeTemp.cubes.Length;i++)
-            {
-                if (shapeTemp.cubes[i].pos.y > Game.h - 9)
+                if (shape.cubes[i].pos.y > Game.h - 9)
                 {
                     return true;
                 }
@@ -747,7 +792,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// 触碰到可变地图的判断函数
+        /// 触碰到可变地图的判断函数(用shape做参数)
         /// </summary>
         /// <param name="shape"></param>
         /// <returns></returns>
@@ -762,6 +807,7 @@ namespace Tetris
                         && shape.cubes[i].pos.y + 1 == ChangingWalls.instanceOfChangingWalls.walls[j].pos.y)
                     {
                         flagTouchChangingWalls = true;
+                        break;
                     }
                 }
             }
@@ -783,6 +829,87 @@ namespace Tetris
             //objLock = new object();
             afterTouchDoSomethig = null;
             //instanceOfShape = new Shape();
+        }
+
+        /// <summary>
+        /// 撞左墙判断
+        /// </summary>
+        /// <param name="cubes"></param>
+        /// <returns></returns>
+        public bool TouchLeftWall(Cube[] cubes)
+        {
+            bool flagTouchLeftWall = false;
+            for (int i = 0; i < cubes.Length; i++)
+            {
+                if (cubes[i].pos.x <= 0)
+                {
+                    flagTouchLeftWall = true;
+                    break;
+                }
+            }
+            if (flagTouchLeftWall == true)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 撞右墙判断
+        /// </summary>
+        /// <param name="cubes"></param>
+        /// <returns></returns>
+        public bool TouchRightWall(Cube[] cubes)
+        {
+            bool flagTouchLeftWall = false;
+            for (int i = 0; i < cubes.Length; i++)
+            {
+                if (cubes[i].pos.x >= Game.w - 2)
+                {
+                    flagTouchLeftWall = true;
+                    break;
+                }
+            }
+            if (flagTouchLeftWall == true)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 触碰到可变地图的判断函数(用Cube[]做参数)
+        /// </summary>
+        /// <param name="cubes"></param>
+        /// <returns></returns>
+        public bool touchChangingWalls2(Cube[] cubes)
+        {
+            bool flagTouchChangingWalls = false;
+            for (int i = 0; i < cubes.Length; i++)
+            {
+                for (int j = 0; j < ChangingWalls.instanceOfChangingWalls.walls.Length; j++)
+                {
+                    if (cubes[i].pos.x == ChangingWalls.instanceOfChangingWalls.walls[j].pos.x
+                        && cubes[i].pos.y + 1 == ChangingWalls.instanceOfChangingWalls.walls[j].pos.y)
+                    {
+                        flagTouchChangingWalls = true;
+                    }
+                }
+            }
+            if (flagTouchChangingWalls == true)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

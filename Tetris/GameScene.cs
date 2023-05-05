@@ -8,10 +8,17 @@ namespace Tetris
 {
     class GameScene : ISceneUpdate
     {
-        Shape shape = Shape.instanceOfShape;
-        UnChangingMap unChangingMap = new UnChangingMap();
-        ChangingWalls changingWalls = ChangingWalls.InstanceOfChangingWalls;
-        static public bool isGameOver = false;
+        Shape shape;
+        UnChangingMap unChangingMap;
+        ChangingWalls changingWalls;
+        static public bool isGameOver;
+
+        //Shape shape = Shape.instanceOfShape;
+        //UnChangingMap unChangingMap = new UnChangingMap();
+        //ChangingWalls changingWalls = ChangingWalls.InstanceOfChangingWalls;
+        //static public bool isGameOver = false;
+        Thread thread1;
+        Thread thread2;
 
         public GameScene()
         {
@@ -26,6 +33,15 @@ namespace Tetris
             unChangingMap.Draw();
             shape.afterTouchDoSomethig += changingWalls.AddShape;
             shape.afterTouchDoSomethig += changingWalls.isFullLine;
+
+            thread1 = new Thread(shape.MoveDown);
+            thread1.Start();
+            //thread1.IsBackground = true;
+
+            //启动左右移动线程
+            thread2 = new Thread(shape.MoveLeftOrRight);
+            thread2.Start();
+            //thread2.IsBackground = true;
         }
 
         public void Update()
@@ -45,13 +61,13 @@ namespace Tetris
             //new UnChangingMap().Draw();
             //Shape shape = new Shape();
 
-            Thread thread1 = new Thread(shape.MoveDown);
-            thread1.Start();
-            ////thread1.IsBackground = true;
+            //Thread thread1 = new Thread(shape.MoveDown);
+            //thread1.Start();
+            //thread1.IsBackground = true;
 
-            //启动左右移动线程
-            Thread thread2 = new Thread(shape.MoveLeftOrRight);
-            thread2.Start();
+            ////启动左右移动线程
+            //Thread thread2 = new Thread(shape.MoveLeftOrRight);
+            //thread2.Start();
             //thread2.IsBackground = true;
 
             //测试发现这两句不能加
@@ -60,10 +76,14 @@ namespace Tetris
 
             if (isGameOver == true)
             {
+                thread2.Join();
+                thread1.Join();
+                //Console.Clear();
                 thread1 = null;
                 thread2 = null;
                 //isGameOver = false;
                 //changingWalls.walls = null;
+                //Thread.Sleep(1000);
                 Game.nowScene = null;
                 Game.ChangeScene(E_SceneType.End);
             }
