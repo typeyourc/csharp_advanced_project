@@ -819,6 +819,7 @@ namespace Tetris
                 Thread.Sleep(10);
                 Delete();
                 for (int i = 0; i < cubes.Length; i++)
+                    //通过加4加快下滑
                     cubes[i].pos.y += 4;
             }
             else
