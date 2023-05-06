@@ -816,10 +816,10 @@ namespace Tetris
             if (!TouchBottom(this) && !TouchChangingWalls(this))
             {
                 Draw();
-                Thread.Sleep(100);
+                Thread.Sleep(10);
                 Delete();
                 for (int i = 0; i < cubes.Length; i++)
-                    cubes[i].pos.y += 1;
+                    cubes[i].pos.y += 4;
             }
             else
             {
